@@ -59,6 +59,16 @@ const resolvers = {
   Query: {
     hello: (_, { name }) => `Hello ${name || 'World'}`,
   },
+  Mutation: {
+    createUser: (parent, args, context, info) => {
+      const newUser = context.prisma.user.create({
+        data: {
+          name: args.name,
+        },
+      });
+      return newUser;
+    },
+  },
 };
 
 const server = new GraphQLServer({
