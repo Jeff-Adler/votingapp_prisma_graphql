@@ -1,10 +1,17 @@
 const { GraphQLServer } = require('graphql-yoga');
+const { PrismaClient } = require('@prisma/client');
+
+const schema = {
+  typeDefs,
+  resolvers,
+};
 
 const typeDefs = `
 type Query {
   hello(name: String): String!
 }
 `;
+
 const resolvers = {
   Query: {
     hello: (_, { name }) => `Hello ${name || 'World'}`,
@@ -12,8 +19,10 @@ const resolvers = {
 };
 
 const server = new GraphQLServer({
-  typeDefs,
-  resolvers,
+  schema,
+  context: {
+    prisma,
+  },
 });
 
 const options = {
