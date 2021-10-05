@@ -4,30 +4,34 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const typeDefs = `
-type User {
-    id          :ID!
-    name        :String!
-    polls       :[Poll]
-  }
-  type Poll {
-    id          :ID!
-    description :String!
-    user        :User!
-    options     :[Option!]
-    votes       :[Vote]
-  }
-  type Option {
-    id          :ID!
-    text        :String!
-    poll        :Poll!
-    votes       :[Vote]
-  }
-  type Vote {
-    id          :ID!
-    user        :User!
-    poll        :Poll!
-    option      :Option!
-  }
+  type User {
+      id          :ID!
+      name        :String!
+      polls       :[Poll]
+    }
+
+    type Poll {
+      id          :ID!
+      description :String!
+      user        :User!
+      options     :[Option!]
+      votes       :[Vote]
+    }
+
+    type Option {
+      id          :ID!
+      text        :String!
+      poll        :Poll!
+      votes       :[Vote]
+    }
+
+    type Vote {
+      id          :ID!
+      user        :User!
+      poll        :Poll!
+      option      :Option!
+    }
+
   type Query {
     users: [User]
     polls: [Poll]
@@ -35,26 +39,42 @@ type User {
     user(id: ID!): User
     poll(id: ID!): Poll
   }
+
   type Mutation {
     createUser(
       name: String!
       ): User
-      createPoll(
-        description: String!
-        id: ID!
-        options: [String!]
-        ): Poll
-        createVote(
-          userID: ID!
-          pollID: ID!
-          optionID: ID!
-          ): Vote
-        }
-        `;
+
+    createPoll(
+      description: String!
+      id: ID!
+      options: [String!]
+    ): Poll
+
+    createVote(
+      userID: ID!
+      pollID: ID!
+      optionID: ID!
+    ): Vote
+  }
+`;
 
 const resolvers = {
   Query: {
-    hello: (_, { name }) => `Hello ${name || 'World'}`,
+    user: async (parent, args, context) => {
+      const { id } = args;
+      return context.prisma.user.findOne({
+        where: {
+          id,
+        },
+        include: { polls: true },
+      });
+    },
+    users: async (parent, args, context) => {
+      return context.prisma.user.findMany({
+        include: { polls: true },
+      });
+    },
   },
   Mutation: {
     createUser: (parent, args, context, info) => {
