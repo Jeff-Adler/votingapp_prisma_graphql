@@ -1,13 +1,10 @@
 const { GraphQLServer } = require('graphql-yoga');
 const { PrismaClient } = require('@prisma/client');
 
-const schema = {
-  typeDefs,
-  resolvers,
-};
+const prisma = new PrismaClient();
 
 const typeDefs = `
-  type User {
+type User {
     id          :ID!
     name        :String!
     polls       :[Poll]
@@ -41,19 +38,19 @@ const typeDefs = `
   type Mutation {
     createUser(
       name: String!
-    ): User
-    createPoll(
-      description: String!
-      id: ID!
-      options: [String!]
-    ): Poll
-    createVote(
-      userID: ID!
-      pollID: ID!
-      optionID: ID!
-    ): Vote
-  }
-`;
+      ): User
+      createPoll(
+        description: String!
+        id: ID!
+        options: [String!]
+        ): Poll
+        createVote(
+          userID: ID!
+          pollID: ID!
+          optionID: ID!
+          ): Vote
+        }
+        `;
 
 const resolvers = {
   Query: {
@@ -69,6 +66,11 @@ const resolvers = {
       return newUser;
     },
   },
+};
+
+const schema = {
+  typeDefs,
+  resolvers,
 };
 
 const server = new GraphQLServer({
