@@ -1,0 +1,49 @@
+// 1
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 2
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 3
+model User {
+  id    String @id @default(cuid())
+  name  String
+  polls Poll[]
+  Vote  Vote[]
+}
+
+// 4
+model Poll {
+  id          String   @id @default(cuid())
+  description String
+  user        User     @relation(fields: [userId], references: [id])
+  options     Option[]
+  votes       Vote[]
+
+  userId String
+}
+
+// 5
+model Option {
+  id     String @id @default(cuid())
+  text   String
+  poll   Poll   @relation(fields: [pollId], references: [id])
+  votes  Vote[]
+  pollId String
+}
+
+// 6
+model Vote {
+  id       String @id @default(cuid())
+  user     User   @relation(fields: [userId], references: [id])
+  poll     Poll   @relation(fields: [pollId], references: [id])
+  option   Option @relation(fields: [optionId], references: [id])
+  userId   String
+  pollId   String
+  optionId String
+}
