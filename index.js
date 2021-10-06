@@ -1,11 +1,22 @@
 const { GraphQLServer } = require('graphql-yoga');
 const { PrismaClient } = require('@prisma/client');
+// const { gql } = require('graphql-tag');
 
 const prisma = new PrismaClient();
 
-const typeDefs = gql`
+(async () => {
+  const user = await prisma.user.create({
+    data: {
+      name: 'Kyle',
+    },
+  });
+  const response = await prisma.user.findFirst({});
+  console.log(response);
+})();
+
+const typeDefs = `
   type User {
-    id: ID!
+    id: String!
     name: String!
     polls: [Poll]
   }
@@ -36,7 +47,7 @@ const typeDefs = gql`
     users: [User]
     polls: [Poll]
     votes: [Vote]
-    user(id: ID!): User
+    user(id: String!): User
     poll(id: ID!): Poll
   }
 
@@ -67,8 +78,9 @@ const resolvers = {
     },
   },
   Mutation: {
-    createUser: (parent, args, context, info) => {
-      const newUser = context.prisma.user.create({
+    createUser: async (parent, args, context, info) => {
+      console.log('Mutation query: ', JSON.stringify(args));
+      const newUser = await context.prisma.user.create({
         data: {
           name: args.name,
         },
